@@ -1,0 +1,93 @@
+/* src\components\Nosotros\Nosotros.scss */
+
+/* Estilos para la sección "Nosotros" */
+.nosotros-section {
+    background-color: #f8f8f8;
+    padding: 60px 0;
+    text-align: center;
+  }
+  
+  .nosotros-title {
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 30px;
+  }
+  
+  .nosotros-media {
+    margin-bottom: 30px;
+  }
+  
+  .nosotros-media-item {
+    max-width: 100%; /* Ajustar el ancho de la imagen o video según tus necesidades */
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nosotros-description {
+    font-size: 20px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+  }
+  
+  .nosotros-cards {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  
+  .nosotros-card {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+    width: calc(33.333% - 20px); /* Calculado para ajustarse a tres tarjetas por fila */
+  }
+  
+  .nosotros-card-icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+  }
+  
+  .nosotros-card-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  .nosotros-card-description {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  .nosotros-card-link {
+    background-color: #008CBA;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    display: inline-block; /* Agregada la propiedad display para que el enlace ocupe solo el ancho necesario */
+  }
+  
+  .nosotros-card-link:hover {
+    background-color: #006E8A;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .nosotros-cards {
+      justify-content: center;
+    }
+  
+    .nosotros-card {
+      width: calc(50% - 20px); /* Calculado para ajustarse a dos tarjetas por fila en dispositivos pequeños */
+    }
+  }
+  

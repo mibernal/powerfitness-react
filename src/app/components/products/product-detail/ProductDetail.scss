@@ -1,0 +1,64 @@
+/* src\components\ProductDetail\ProductDetail.scss */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+  
+    .card.product {
+      .image-container {
+        position: relative;
+        max-height: 400px;
+  
+        .arrow {
+          position: absolute;
+          top: 50%;
+          font-size: 24px;
+          background-color: transparent;
+          border: none;
+          color: #333;
+          cursor: pointer;
+          transform: translateY(-50%);
+        }
+  
+        .left-arrow {
+          left: 10px;
+        }
+  
+        .right-arrow {
+          right: 10px;
+        }
+  
+        .images {
+          overflow: hidden;
+  
+          .card-img-top.product-image {
+            max-width: 100%; /* Full width for mobile */
+            height: auto;
+            object-fit: contain;
+          }
+        }
+      }
+  
+      .card-body {
+        .card-title.product-name {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+  
+        .card-text {
+          margin-bottom: 15px;
+  
+          select {
+            margin-left: 5px;
+          }
+        }
+  
+        .btn.btn-primary.add-to-cart-button {
+          margin-top: 15px;
+        }
+      }
+    }
+  }
+  

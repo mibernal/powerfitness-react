@@ -1,0 +1,32 @@
+/* Importa el estilo de Bootstrap solo en este archivo */
+@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+
+/* Definición de variables CSS */
+:root {
+  --link-color: #007bff;
+  --font-family-base: 'Roboto', 'Helvetica Neue', sans-serif;
+  --font-size-base: 16px;
+}
+
+/* Establece las fuentes y el tamaño de fuente predeterminados */
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+}
+
+/* Configuración para mejorar la legibilidad del enlace */
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Ajusta el tamaño de fuente en pantallas más pequeñas */
+@media (max-width: 768px) {
+  body {
+    font-size: calc(var(--font-size-base) - 2px);
+  }
+}

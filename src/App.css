@@ -1,0 +1,25 @@
+/* Importa el estilo de Bootstrap */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+/* Establece las fuentes y el tamaño de fuente predeterminados */
+body {
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+}
+
+/* Configuración para mejorar la legibilidad del enlace */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Ajusta el tamaño de fuente en pantallas más pequeñas */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Ajusta según tus necesidades */
+  }
+}

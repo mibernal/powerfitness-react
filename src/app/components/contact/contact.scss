@@ -1,0 +1,118 @@
+// Variables de color y espaciado
+$primary-color: #511a87;
+$secondary-color: #ffffff;
+$spacing-small: 8px;
+$spacing-medium: 12px;
+$spacing-large: 20px;
+$font-size-large: 36px;
+$font-size-medium: 26px;
+$font-size-small: 18px;
+
+.container {
+  padding: 50px;
+  background-color: $secondary-color;
+
+  h1 {
+    color: $primary-color;
+    font-size: $font-size-large;
+    margin-bottom: $spacing-large;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    .col-md-6 {
+      margin-bottom: $spacing-large;
+
+      h3 {
+        color: $primary-color;
+        font-size: $font-size-medium;
+        margin-bottom: $spacing-medium;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      p {
+        font-size: $font-size-small;
+        margin-bottom: $spacing-medium;
+        text-align: center;
+      }
+
+      iframe {
+        border: 0;
+        height: 350px;
+        width: 100%;
+      }
+
+      form {
+        input,
+        textarea {
+          padding: 10px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          width: 100%;
+          margin-bottom: $spacing-small;
+
+          &:focus {
+            border-color: darken($primary-color, 10%);
+            outline: none;
+          }
+        }
+
+        label {
+          display: block;
+          font-size: 16px;
+          margin-bottom: $spacing-small;
+          text-transform: uppercase;
+        }
+
+        button {
+          background-color: $primary-color;
+          border: none;
+          border-radius: 4px;
+          color: $secondary-color;
+          cursor: pointer;
+          font-size: 18px;
+          padding: $spacing-medium 24px;
+          transition: background-color 0.2s ease-in-out;
+
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
+        }
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+          margin-bottom: 10px;
+
+          a {
+            color: $primary-color;
+            font-size: 16px;
+            text-decoration: none;
+
+            i {
+              margin-right: 10px;
+            }
+
+            &:focus,
+            &:hover {
+              text-decoration: underline;
+              outline: 2px dashed $primary-color;
+              outline-offset: 4px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

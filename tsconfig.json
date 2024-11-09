@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "jsx": "react-jsx", 
+    "module": "commonjs",
+    "esModuleInterop": true, 
+    "forceConsistentCasingInFileNames": true, 
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "node", 
+    "resolveJsonModule": true, 
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".", 
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  }
+}

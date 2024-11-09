@@ -1,0 +1,97 @@
+// navbar.component.scss
+
+$primary-color: #511a87;
+$secondary-color: #fff;
+$color-change-percentage: 10%;
+
+.navbar {
+  background: linear-gradient(to bottom, $primary-color, $primary-color $color-change-percentage, $primary-color);
+
+  .navbar-toggler-icon {
+    background-color: $secondary-color;
+  }
+
+  .navbar-toggler:hover .navbar-toggler-icon {
+    background-color: $primary-color;
+  }
+
+  .collapse {
+    background-color: rgba($primary-color, 0.9);
+  }
+
+  .navbar-brand {
+    font-size: 30px;
+    font-weight: bold;
+    color: $secondary-color;
+
+    &:hover {
+      color: $secondary-color;
+    }
+  }
+
+  .nav-link {
+    color: $secondary-color;
+
+    &:hover,
+    &:active,
+    &.active {
+      color: $secondary-color;
+    }
+  }
+
+  .dropdown-menu {
+    background-color: $primary-color;
+
+    .dropdown-item {
+      color: $secondary-color;
+
+      &:hover {
+        color: $secondary-color;
+        background-color: lighten($primary-color, $color-change-percentage);
+      }
+    }
+  }
+
+  .form-control {
+    background-color: lighten($primary-color, $color-change-percentage);
+    color: $secondary-color;
+
+    &::placeholder {
+      color: $secondary-color;
+    }
+
+    &:focus {
+      border-color: $primary-color;
+    }
+  }
+
+  .btn-outline-success {
+    color: $secondary-color;
+    border-color: $secondary-color;
+
+    &:hover {
+      color: $primary-color;
+      background-color: $secondary-color;
+    }
+  }
+
+  .bi-cart {
+    font-size: 1.5rem;
+    color: $secondary-color;
+
+    &:hover {
+      color: $secondary-color;
+    }
+
+    .cart-items {
+      background-color: #ff0000;
+      color: #ffffff;
+      font-size: 12px;
+      border-radius: 50%;
+      padding: 2px 6px;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+    }
+  }
+}
