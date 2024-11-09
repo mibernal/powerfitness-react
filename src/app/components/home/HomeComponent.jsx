@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import ProductService from '../services/product/ProductService';  // Asegúrate de que esta importación sea correcta
-import { BrandService } from '../services/brand/BrandService';
+import { BrandService } from '../services/brand/BrandService'; // Suponiendo que 'BrandService' sea un hook
 import './HomeComponent.scss';
 
 const HomeComponent = () => {
@@ -11,7 +11,6 @@ const HomeComponent = () => {
   const [brands, setBrands] = useState([]);
   const slickRef = useRef(null);
   const navigate = useNavigate();
-  
 
   const carouselConfig = {
     slidesToShow: Math.min(brands.length, 5),
@@ -23,37 +22,37 @@ const HomeComponent = () => {
     infinite: true,
   };
 
+  const { fetchBrands, brandsData } = BrandService(); // Llamar al hook que maneja las marcas
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const products = await ProductService.getProducts();  // Aquí estamos llamando al método estático de ProductService
+        const productService = new ProductService();  // Instancia ProductService
+        const products = await productService.getProducts();  // Llama a getProducts usando la instancia
         setProducts(products.slice(0, 6));
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
 
-    const fetchBrands = async () => {
-      try {
-        const brands = await BrandService.getBrands();  // Asegúrate de que BrandService esté bien importado
-        setBrands(brands);
-      } catch (error) {
-        console.error('Error fetching brands:', error);
-      }
-    };
-
     fetchProducts();
-    fetchBrands();
-  }, []);
+    fetchBrands();  // Llamar a la función de 'fetchBrands' para obtener las marcas
+  }, [fetchBrands]);  // Dependencia para llamar solo cuando el hook se recargue
+
+  useEffect(() => {
+    if (brandsData) {
+      setBrands(brandsData); // Asignar las marcas cuando estén disponibles
+    }
+  }, [brandsData]);
 
   const viewProductDetails = (productId) => {
     navigate(`/products/${productId}`);
   };
 
   // **Fix 1: Missing formatPrice function**
-  // Assuming the formatPrice function resides in ProductService
+  // Implementación de la función para formatear los precios
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`; // Format price with currency symbol and 2 decimals
+    return `$${price.toFixed(2)}`; // Formatea el precio con el símbolo de la moneda y 2 decimales
   };
 
   return (

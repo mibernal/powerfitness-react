@@ -1,4 +1,4 @@
-// src\app\components\services\brand\BrandService.tsx
+// src/app/components/services/brand/BrandService.tsx
 import { useState, useEffect, useCallback } from 'react';
 import {
   getFirestore,
@@ -22,6 +22,7 @@ const BrandService = () => {
   const firestore = getFirestore();
   const collectionRef = collection(firestore, 'brands') as CollectionReference<Brand>;
 
+  // Función para obtener las marcas
   const fetchBrands = useCallback(async () => {
     setLoading(true);
     try {
@@ -39,6 +40,7 @@ const BrandService = () => {
     fetchBrands();
   }, [fetchBrands]);
 
+  // Función para crear una nueva marca
   const createBrand = async (brand: Omit<Brand, 'id'>) => {
     setError(null); // Reset error before API call
     try {
@@ -52,7 +54,8 @@ const BrandService = () => {
       setLoading(false);
     }
   };
-  
+
+  // Función para actualizar una marca
   const updateBrand = async (brand: Brand) => {
     try {
       setLoading(true);
@@ -66,6 +69,7 @@ const BrandService = () => {
     }
   };
 
+  // Función para eliminar una marca
   const deleteBrand = async (brandId: string) => {
     try {
       setLoading(true);
@@ -83,17 +87,11 @@ const BrandService = () => {
     brands,
     loading,
     error,
-    fetchBrands,
+    fetchBrands,  // Ahora fetchBrands está dentro del objeto retornado por el servicio
     createBrand,
     updateBrand,
     deleteBrand,
   };
 };
 
-const getBrands = () => {
-  return fetch('API_URL')
-    .then(response => response.json())
-    .catch(error => console.error('Error fetching brands:', error));
-};
-
-export { BrandService, getBrands };
+export { BrandService };
