@@ -1,37 +1,37 @@
-//src\app\components\products\product-detail\ProductDetail.js
+// src/app/components/products/product-detail/ProductDetail.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ProductService from '../../services/product/ProductService'; // Adjust import based on your service structure
-import CartService from '../../services/cart/CartService'; // Adjust import based on your service structure
+import ProductService from '../../services/product/ProductService';
+import CartService from '../../services/cart/CartService';
 import './ProductDetail.scss';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState({});
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedFlavor, setSelectedFlavor] = useState('');
   const [confirmationMessage, setConfirmationMessage] = useState('');
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);  // Mueve este hook aquí
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const updateCurrentImageIndex = (index) => {
-    setCurrentImageIndex(index);  // Solo actualiza el estado, no declares useState aquí
+    setCurrentImageIndex(index);
   };
 
   useEffect(() => {
     const fetchProduct = async () => {
+      const productService = new ProductService();
       try {
-        const products = await ProductService.getProducts();
-        const foundProduct = products.find((prod) => prod.id === id);
-        if (foundProduct) {
-          setProduct(foundProduct);
+        const fetchedProduct = await productService.getProductById(id);
+        if (fetchedProduct) {
+          setProduct(fetchedProduct);
         } else {
           console.error('Product not found');
-          navigate('/404'); // Redirect to a 404 page if product not found
+          navigate('/404');
         }
       } catch (error) {
-        console.error('Error retrieving products:', error);
+        console.error('Error retrieving product:', error);
+        navigate('/404');
       }
     };
 
@@ -39,7 +39,7 @@ const ProductDetail = () => {
   }, [id, navigate]);
 
   const formatPrice = (price) => {
-    return price.toLocaleString('es-ES');
+    return new ProductService().formatPrice(price); // Usamos el método formatPrice del servicio
   };
 
   const addProduct = () => {
@@ -52,14 +52,13 @@ const ProductDetail = () => {
     const selectedProduct = { ...product, selectedSize, selectedFlavor };
     CartService.addProduct(selectedProduct);
     setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
-
     setSelectedSize('');
     setSelectedFlavor('');
   };
 
   return (
     <div className="container">
-      {product && (
+      {product ? (
         <div className="row">
           <div className="col-md-6">
             <div className="card product">
@@ -103,19 +102,15 @@ const ProductDetail = () => {
                 {product.stock !== undefined && product.stock !== 0 && (
                   <p className="card-text product-stock">Stock: {product.stock}</p>
                 )}
-                {product.description && <p className="card-text product-description">{product.description}</p>}
-                {product.discount !== undefined && product.discount !== 0 && (
-                  <p className="card-text product-discount">Descuento: {product.discount}</p>
-                )}
-                {product.price !== undefined && product.price !== 0 && (
-                  <p className="card-text product-price">{formatPrice(product.price)}</p>
-                )}
-                <button className="btn btn-primary add-to-cart-button" onClick={addProduct}>Añadir al Carrito</button>
-                {confirmationMessage && <p>{confirmationMessage}</p>}
+                <p className="card-text product-price">Precio: {formatPrice(product.price)}</p>
+                <button className="btn btn-primary" onClick={addProduct}>Agregar al carrito</button>
+                {confirmationMessage && <p className="confirmation-message">{confirmationMessage}</p>}
               </div>
             </div>
           </div>
         </div>
+      ) : (
+        <p>Cargando producto...</p>
       )}
     </div>
   );

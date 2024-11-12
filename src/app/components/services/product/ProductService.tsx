@@ -22,10 +22,10 @@ class ProductService {
     this.csvParserService = new CsvParserService();
   }
 
-  // Método para formatear precios, aplicable en todos los componentes
+  // Método para formatear precios
   formatPrice(price: number): string {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  }  
+  }
 
   // Método para importar productos desde CSV
   async importProductsFromCSV(file: File): Promise<void> {
@@ -37,7 +37,7 @@ class ProductService {
     }
   }
 
-  // Obtener productos ordenados por nombre
+  // Obtener todos los productos
   async getProducts(): Promise<Product[]> {
     try {
       const q = query(this.collectionRef, orderBy('name'));
@@ -68,12 +68,11 @@ class ProductService {
     }
   }
 
-  // Obtener producto por ID
+  // Obtener un producto por su ID
   async getProductById(id: string): Promise<Product | null> {
     try {
       const productDocRef = doc(this.collectionRef, id);
       const productDoc = await getDoc(productDocRef);
-
       if (productDoc.exists()) {
         return { id: productDoc.id, ...productDoc.data() } as Product;
       } else {

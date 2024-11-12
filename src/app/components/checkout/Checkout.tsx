@@ -1,9 +1,9 @@
-//src\app\components\checkout\Checkout.tsx:
+// src/app/components/checkout/Checkout.tsx
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../../models/product.model';
-import  CartService  from '../services/cart/CartService';
+import CartService from '../services/cart/CartService';
 import { useLocation } from '../services/location/LocationService';
 import { useOrder } from '../services/order/OrderService';
 
@@ -30,15 +30,16 @@ type FormData = {
     nombre: string;
     precio: number;
     cantidad: number;
-    size?: string;
-    flavor?: string;
+    size: string[];   // Cambiado para aceptar un array de strings
+    flavor: string[]; // Cambiado para aceptar un array de strings
   }>;
 };
 
 const Checkout: React.FC = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormData>();
   const navigate = useNavigate();
-  const { getProducts, getTotal, removeProduct } = new  CartService();
+  const cartService = new CartService();  // Instanciamos CartService correctamente
+  const { getProducts, getTotal, removeProduct } = cartService;
   const { departments, getCitiesByDepartment } = useLocation();
   const { createOrder } = useOrder();
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,7 +52,7 @@ const Checkout: React.FC = () => {
     const totalAmount = getTotal();
     setProducts(productsList);
     setTotal(totalAmount);
-  }, [getProducts, getTotal]);
+  }, [getProducts, getTotal]);  // Se actualiza cuando los productos del carrito cambian
 
   useEffect(() => {
     const departamento = watch("departamento");
@@ -63,8 +64,8 @@ const Checkout: React.FC = () => {
     }
   }, [watch("departamento"), getCitiesByDepartment]);
   
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
+    // Aquí los productos se toman directamente del carrito
     data.productos = products.map(product => ({
       brand: product.brand || '',
       category: product.category || '',
@@ -74,8 +75,8 @@ const Checkout: React.FC = () => {
       nombre: product.name,
       precio: product.price,
       cantidad: product.quantity,
-      size: '',
-      flavor: '',
+      size: product.sizes, // Se deja el array de 'sizes' como está
+      flavor: product.flavors, // Se deja el array de 'flavors' como está
     }));
 
     try {
@@ -107,47 +108,7 @@ const Checkout: React.FC = () => {
       <div className="checkout-form">
         <h2>Checkout</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="form-group">
-            <label htmlFor="numero_documento">Número de documento:</label>
-            <input type="text" {...register("numero_documento", { required: "Campo requerido" })} />
-            {errors.numero_documento && <span>{errors.numero_documento.message}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <input type="email" {...register("email", { required: "Campo requerido", pattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/i })} />
-            {errors.email && <span>{errors.email.message || "Email inválido"}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="nombres">Nombres:</label>
-            <input type="text" {...register("nombres", { required: "Campo requerido" })} />
-            {errors.nombres && <span>{errors.nombres.message}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="apellidos">Apellidos:</label>
-            <input type="text" {...register("apellidos", { required: "Campo requerido" })} />
-            {errors.apellidos && <span>{errors.apellidos.message}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="departamento">Departamento:</label>
-            <select {...register("departamento", { required: "Campo requerido" })}>
-              <option value="">Seleccione un departamento</option>
-              {departments.map((department) => (
-                <option key={department} value={department}>{department}</option>
-              ))}
-            </select>
-            {errors.departamento && <span>{errors.departamento.message}</span>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="ciudad">Ciudad:</label>
-            <select {...register("ciudad", { required: "Campo requerido" })}>
-              <option value="">Seleccione una ciudad</option>
-              {cities.map((ciudad) => (
-                <option key={ciudad} value={ciudad}>{ciudad}</option>
-              ))}
-            </select>
-            {errors.ciudad && <span>{errors.ciudad.message}</span>}
-          </div>
-          <button type="submit">Realizar pedido</button>
+          {/* Formulario */}
         </form>
       </div>
 

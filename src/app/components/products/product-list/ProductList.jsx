@@ -1,8 +1,10 @@
 // src/app/components/products/product-list/ProductList.jsx
+// src/app/components/products/product-list/ProductList.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductService from '../../services/product/ProductService';
 import useCart from '../../services/cart/CartService';
+import { Card, CardContent, CardMedia, Button, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import './ProductList.scss';
 
 const ProductList = () => {
@@ -16,7 +18,7 @@ const ProductList = () => {
   const [selectedSortOrder, setSelectedSortOrder] = useState('popularity');
 
   const location = useLocation();
-  const { addProduct } = useCart();
+  const { addProduct } = useCart();  // Usar el hook aquí
 
   const sortOptions = [
     { value: 'popularity', label: 'Popularidad' },
@@ -29,10 +31,7 @@ const ProductList = () => {
 
   const filterProductsByCategory = useCallback((category) => {
     setSelectedCategory(category);
-    const filtered = products.filter(product =>
-      !category || product.category === category
-    );
-    setFilteredProducts(filtered);
+    setFilteredProducts(products.filter(product => !category || product.category === category));
   }, [products]);
 
   useEffect(() => {
@@ -83,9 +82,9 @@ const ProductList = () => {
       setConfirmationMessage('Selecciona un tamaño o sabor');
       return;
     }
-    addProduct(product);
+    addProduct({ ...product, flavor: selectedFlavor, size: selectedSize }); // Asegurar que el tamaño y sabor se guarden
     setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
-  };
+  };  
 
   const resetFilters = () => {
     setSelectedSize('');
@@ -95,41 +94,56 @@ const ProductList = () => {
   };
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-12">
-          <label htmlFor="sortOrder">Ordenar por:</label>
-          <select id="sortOrder" value={selectedSortOrder} onChange={(e) => {
-            setSelectedSortOrder(e.target.value);
-            sortProducts();
-          }}>
+    <div className="product-list container">
+      <div className="product-filters">
+        <FormControl variant="outlined" className="filter-select">
+          <Select value={selectedSortOrder} onChange={(e) => { setSelectedSortOrder(e.target.value); sortProducts(); }}>
             {sortOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
+              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
             ))}
-          </select>
-          <label htmlFor="categoryFilter">Filtrar por categoría:</label>
-          <select id="categoryFilter" value={selectedCategory} onChange={(e) => filterProductsByCategory(e.target.value)}>
-            <option value="">Todas las categorías</option>
+          </Select>
+        </FormControl>
+        <FormControl variant="outlined" className="filter-select">
+          <Select value={selectedCategory} onChange={(e) => filterProductsByCategory(e.target.value)}>
+            <MenuItem value="">Todas las categorías</MenuItem>
             {productCategories.map(category => (
-              <option key={category} value={category}>{category}</option>
+              <MenuItem key={category} value={category}>{category}</MenuItem>
             ))}
-          </select>
-          <button onClick={resetFilters}>Reiniciar Filtros</button>
-        </div>
+          </Select>
+        </FormControl>
+        <Button variant="contained" onClick={resetFilters}>Reiniciar Filtros</Button>
       </div>
-      <div className="row">
+
+      <div className="product-grid row">
         {filteredProducts.map(product => (
           <div key={product.id} className="col-md-4 col-sm-6 col-lg-3">
-            <div className="product">
-              <h3>{product.name}</h3>
-              <p>{product.description}</p>
-              <p>${product.price.toFixed(2)}</p>
-              <button onClick={() => handleAddProduct(product)}>Añadir al Carrito</button>
-            </div>
+            <Card className="product-card">
+              <CardMedia
+                component="img"
+                height="200"
+                image={product.image || 'default-image.jpg'}
+                alt={product.name}
+              />
+              <CardContent>
+                <Typography variant="h6" component="div" className="product-title">
+                  {product.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" className="product-description">
+                  {product.description}
+                </Typography>
+                <Typography variant="h6" className="product-price">
+                  ${product.price.toFixed(2)}
+                </Typography>
+                <Button variant="contained" color="primary" onClick={() => handleAddProduct(product)}>
+                  Añadir al Carrito
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         ))}
       </div>
-      {confirmationMessage && <div className="confirmation">{confirmationMessage}</div>}
+
+      {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
     </div>
   );
 };

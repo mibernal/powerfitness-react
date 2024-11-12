@@ -1,63 +1,48 @@
 // src/app/components/services/cart/CartService.tsx
+
+//import { useState } from 'react';
 import { Product } from '../../../models/product.model';
 
 interface CartProduct extends Product {
   quantity: number;
 }
 
-class CartService {
-  private products: CartProduct[];
+export default class CartService {
+  private cart: CartProduct[] = [];
 
   constructor() {
-    this.products = [];
+    this.cart = [];  // Inicializa el carrito vacío
   }
 
-  // Obtener todos los productos
-  getProducts(): CartProduct[] {
-    return this.products;
-  }
-
-  // Agregar un producto
-  addProduct(product: Product): void {
-    const existingProduct = this.products.find((p) => p.id === product.id);
-
+  // Método para agregar productos al carrito
+  addProduct(product: Product) {
+    const existingProduct = this.cart.find((p) => p.id === product.id);
     if (existingProduct) {
-      // Incrementar cantidad si el producto ya existe
-      this.products = this.products.map((p) =>
-        p.id === product.id
-          ? { ...p, quantity: p.quantity + 1 }
-          : p
-      );
+      // Actualizamos la cantidad en lugar de crear un nuevo producto
+      this.cart = this.cart.map(p => p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p);
     } else {
-      // Agregar nuevo producto con cantidad inicial de 1
-      this.products = [...this.products, { ...product, quantity: 1 }];
+      // Agregamos un nuevo producto con cantidad inicial de 1
+      this.cart = [...this.cart, { ...product, quantity: 1 }];
     }
   }
 
-  // Eliminar un producto
-  removeProduct(productId: string): void {
-    this.products = this.products.filter((p) => p.id !== productId);
+  // Método para eliminar un producto del carrito
+  removeProduct(productId: string) {
+    this.cart = this.cart.filter((p) => p.id !== productId);
   }
 
-  // Limpiar el carrito
-  clearCart(): void {
-    this.products = [];
+  // Método para vaciar el carrito
+  clearCart() {
+    this.cart = [];
   }
 
-  // Obtener el total
-  getTotal(): number {
-    return this.products.reduce(
-      (acc, product) => acc + (product.price || 0) * product.quantity,
-      0
-    );
+  // Método para obtener los productos del carrito
+  getProducts() {
+    return this.cart;
   }
 
-  // Actualizar un producto en el carrito
-  updateProduct(productId: string, updates: Partial<CartProduct>): void {
-    this.products = this.products.map((p) =>
-      p.id === productId ? { ...p, ...updates } : p
-    );
+  // Método para obtener el total de la compra
+  getTotal() {
+    return this.cart.reduce((acc, product) => acc + (product.price || 0) * product.quantity, 0);
   }
 }
-
-export default CartService;
