@@ -1,29 +1,34 @@
-//src\app\components\cart\CartComponent.jsx
+// src/app/components/cart/CartComponent.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import  CartService  from '../services/cart/CartService';
+import CartService from '../services/cart/CartService';
+
+// Instancia de CartService
+const cartService = new CartService();
 
 const Cart = () => {  
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { getProducts, removeProduct } = CartService(); // Utiliza el servicio del carrito
 
   useEffect(() => {
-    setProducts(getProducts()); // Obtén los productos del carrito
-  }, [getProducts]);
+    // Obtiene los productos del carrito al montar el componente
+    setProducts(cartService.getProducts());
+  }, []);
 
-  const getTotal = () => products.reduce((acc, product) => acc + product.price * (product.quantity || 1), 0); // Multiplica por la cantidad si está definida
+  const getTotal = () => 
+    products.reduce((acc, product) => acc + (product.price || 0) * (product.quantity || 1), 0);
 
-  const handleRemoveProduct = (productId) => { // Cambia el parámetro a productId
-    removeProduct(productId); // Elimina el producto usando su ID
-    setProducts(getProducts()); // Actualiza los productos en el estado
-    enqueueSnackbar('Producto eliminado del carrito.', { variant: 'info', autoHideDuration: 3000 }); // Mensaje de notificación
+  const handleRemoveProduct = (productId) => {
+    // Elimina el producto usando su ID y actualiza el estado
+    cartService.removeProduct(productId);
+    setProducts(cartService.getProducts());
+    enqueueSnackbar('Producto eliminado del carrito.', { variant: 'info', autoHideDuration: 3000 });
   };
 
-  const formatPrice = (price) => price.toLocaleString('es-ES'); // Formato de precio
+  const formatPrice = (price) => price.toLocaleString('es-ES');
 
   const completePurchase = () => {
     const isSuccess = true; // Simulación de éxito
@@ -40,16 +45,16 @@ const Cart = () => {
       <h2>Carrito de compras</h2>
       {products.length > 0 ? (
         <div className="products">
-          {products.map((product, index) => (
-            <div key={index} className="product">
+          {products.map((product) => (
+            <div key={product.id} className="product">
               <img src={product.imageUrl[0]} alt={product.name} />
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <p>Tamaño: {product.selectedSize || 'N/A'}</p>
               <p>Sabor: {product.selectedFlavor || 'N/A'}</p>
               <p>Precio: ${formatPrice(product.price)}</p>
-              <p>Cantidad: {product.quantity || 1}</p> {/* Muestra la cantidad */}
-              <button onClick={() => handleRemoveProduct(product.id)}>Eliminar</button> {/* Usa el ID del producto */}
+              <p>Cantidad: {product.quantity || 1}</p>
+              <button onClick={() => handleRemoveProduct(product.id)}>Eliminar</button>
             </div>
           ))}
           <div className="total">

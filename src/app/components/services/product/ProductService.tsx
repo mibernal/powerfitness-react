@@ -1,6 +1,21 @@
-// src/app/components/services/product/ProductService.tsx
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, getDoc, Firestore, CollectionReference } from 'firebase/firestore';
+import {  
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  where, 
+  orderBy, 
+  getDoc, 
+  Firestore, 
+  CollectionReference 
+} from 'firebase/firestore';
 import CsvParserService from '../../../services/csv-parser.service';
+
+import { firestore } from '../../../../environments/firebaseConfig';
+
 
 interface Product {
   id?: string;
@@ -13,21 +28,20 @@ interface Product {
 
 class ProductService {
   firestore: Firestore;
-  collectionRef: CollectionReference<Product>;
+  collectionRef: CollectionReference;
   csvParserService: CsvParserService;
 
   constructor() {
-    this.firestore = getFirestore();
-    this.collectionRef = collection(this.firestore, 'productos') as CollectionReference<Product>;
+    // Usa la instancia de Firestore que exportaste de firebaseConfig.ts
+    this.firestore = firestore;
+    this.collectionRef = collection(this.firestore, 'productos') as CollectionReference;
     this.csvParserService = new CsvParserService();
   }
 
-  // Método para formatear precios, aplicable en todos los componentes
   formatPrice(price: number): string {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  }  
+  }
 
-  // Método para importar productos desde CSV
   async importProductsFromCSV(file: File): Promise<void> {
     try {
       await this.csvParserService.importProductsFromCSV(file);
@@ -37,7 +51,6 @@ class ProductService {
     }
   }
 
-  // Obtener productos ordenados por nombre
   async getProducts(): Promise<Product[]> {
     try {
       const q = query(this.collectionRef, orderBy('name'));
@@ -49,7 +62,6 @@ class ProductService {
     }
   }
 
-  // Obtener categorías de productos
   async getProductCategories(): Promise<string[]> {
     try {
       const q = query(this.collectionRef);
@@ -68,12 +80,10 @@ class ProductService {
     }
   }
 
-  // Obtener producto por ID
   async getProductById(id: string): Promise<Product | null> {
     try {
       const productDocRef = doc(this.collectionRef, id);
       const productDoc = await getDoc(productDocRef);
-
       if (productDoc.exists()) {
         return { id: productDoc.id, ...productDoc.data() } as Product;
       } else {
@@ -85,7 +95,6 @@ class ProductService {
     }
   }
 
-  // Crear un nuevo producto
   async createProduct(product: Omit<Product, 'id'>): Promise<Product> {
     try {
       const newProductRef = await addDoc(this.collectionRef, product);
@@ -96,11 +105,9 @@ class ProductService {
     }
   }
 
-  // Actualizar producto
   async updateProduct(product: Product): Promise<void> {
     try {
       if (!product.id) throw new Error("Product ID is required for update.");
-
       const productDocRef = doc(this.collectionRef, product.id);
       await updateDoc(productDocRef, {
         name: product.name,
@@ -116,7 +123,6 @@ class ProductService {
     }
   }
 
-  // Eliminar producto
   async deleteProduct(id: string): Promise<void> {
     try {
       const productDocRef = doc(this.collectionRef, id);
@@ -128,7 +134,6 @@ class ProductService {
     }
   }
 
-  // Obtener marcas de productos
   async getBrands(): Promise<{ id: string; name: string }[]> {
     try {
       const brandsRef = collection(this.firestore, 'brands');
@@ -141,7 +146,6 @@ class ProductService {
     }
   }
 
-  // Filtrar productos por un campo
   async filterProducts(field: keyof Product, value?: string): Promise<Product[]> {
     try {
       const q = value
@@ -156,17 +160,14 @@ class ProductService {
     }
   }
 
-  // Filtrar productos por categoría
   async filterProductsByCategory(category: string): Promise<Product[]> {
     return this.filterProducts('category', category);
   }
 
-  // Filtrar productos por tamaño
   async filterProductsBySize(selectedSize: string): Promise<Product[]> {
     return this.filterProducts('size', selectedSize);
   }
 
-  // Filtrar productos por sabor
   async filterProductsByFlavor(selectedFlavor: string): Promise<Product[]> {
     try {
       const q = selectedFlavor
@@ -182,4 +183,5 @@ class ProductService {
   }
 }
 
-export default ProductService;
+const productService = new ProductService();
+export default productService;

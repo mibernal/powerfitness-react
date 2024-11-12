@@ -2,25 +2,26 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CartService from '../services/cart/CartService';
-import ProductService from '../services/product/ProductService';
-import { useAuth } from '../services/auth/AuthService';  // Keep this import
+import productService from '../services/product/ProductService';
+import { useAuth } from '../services/auth/AuthService';
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItemCount, setCartItemCount] = useState(0);
   const [productCategories, setProductCategories] = useState([]);
-  const { user } = useAuth(); // Uncomment and use this hook to get the 'user' object
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categories = await new ProductService().getProductCategories();
+        const categories = await productService.getProductCategories();
         setProductCategories(categories);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
     };
+
     fetchCategories();
 
     const cartService = new CartService();
