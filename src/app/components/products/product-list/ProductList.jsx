@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductService from '../../services/product/ProductService';
 import CartService from '../../services/cart/CartService';
+=======
+// src/app/components/products/product-list/ProductList.jsx
+// src/app/components/products/product-list/ProductList.jsx
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import ProductService from '../../services/product/ProductService';
+import useCart from '../../services/cart/CartService';
+>>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
 import { Card, CardContent, CardMedia, Button, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import './ProductList.scss';
 
@@ -18,6 +27,10 @@ const ProductList = () => {
   const [selectedSortOrder, setSelectedSortOrder] = useState('popularity');
 
   const location = useLocation();
+<<<<<<< HEAD
+=======
+  const { addProduct } = useCart();  // Usar el hook aquí
+>>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
 
   const sortOptions = [
     { value: 'popularity', label: 'Popularidad' },
@@ -86,7 +99,11 @@ const ProductList = () => {
       setConfirmationMessage('Selecciona un tamaño o sabor');
       return;
     }
+<<<<<<< HEAD
     cartService.addProduct({ ...product, flavor: selectedFlavor, size: selectedSize });
+=======
+    addProduct({ ...product, flavor: selectedFlavor, size: selectedSize }); // Asegurar que el tamaño y sabor se guarden
+>>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
     setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
   };  
 

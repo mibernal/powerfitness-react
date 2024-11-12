@@ -38,6 +38,7 @@ class ProductService {
     this.csvParserService = new CsvParserService();
   }
 
+  // Método para formatear precios, aplicable en todos los componentes
   formatPrice(price: number): string {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
   }
@@ -51,6 +52,7 @@ class ProductService {
     }
   }
 
+  // Obtener productos ordenados por nombre
   async getProducts(): Promise<Product[]> {
     try {
       const q = query(this.collectionRef, orderBy('name'));
@@ -80,6 +82,7 @@ class ProductService {
     }
   }
 
+  // Obtener producto por ID
   async getProductById(id: string): Promise<Product | null> {
     try {
       const productDocRef = doc(this.collectionRef, id);
