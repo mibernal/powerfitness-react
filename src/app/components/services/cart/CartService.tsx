@@ -1,8 +1,4 @@
 // src/app/components/services/cart/CartService.tsx
-<<<<<<< HEAD
-=======
-
->>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
 //import { useState } from 'react';
 import { Product } from '../../../models/product.model';
 
