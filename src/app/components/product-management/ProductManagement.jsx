@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './ProductManagement.scss';
 import CsvWriterService from '../../services/csv-writer.service'; // Adjust the import based on your service's structure
-import ProductService from '../services/product/ProductService'; // Adjust import path based on your structure
+import { ProductService } from '../services/product/ProductService'; // Adjust import path based on your structure
 //import { Product } from '../../models/product.model'; // Adjust import path based on your structure
 
 const ProductManagement = () => {

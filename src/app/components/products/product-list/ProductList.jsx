@@ -1,36 +1,34 @@
-<<<<<<< HEAD
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import ProductService from '../../services/product/ProductService';
-import CartService from '../../services/cart/CartService';
-=======
-// src/app/components/products/product-list/ProductList.jsx
-// src/app/components/products/product-list/ProductList.jsx
-import React, { useEffect, useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import ProductService from '../../services/product/ProductService';
-import useCart from '../../services/cart/CartService';
->>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
-import { Card, CardContent, CardMedia, Button, Typography, Select, MenuItem, FormControl } from '@mui/material';
+import { ProductService } from '../../services/product/ProductService';
+import { useCartService } from '../../services/cart/CartService';
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+} from '@mui/material';
 import './ProductList.scss';
-
-const cartService = new CartService();
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [productCategories, setProductCategories] = useState([]);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedFlavor, setSelectedFlavor] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState({
+    size: '',
+    flavor: '',
+    category: '',
+    sortOrder: 'popularity',
+  });
   const [confirmationMessage, setConfirmationMessage] = useState('');
-  const [selectedSortOrder, setSelectedSortOrder] = useState('popularity');
 
   const location = useLocation();
-<<<<<<< HEAD
-=======
-  const { addProduct } = useCart();  // Usar el hook aquí
->>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
+  const { addProduct } = useCartService();
+  const { getProducts, getProductCategories } = ProductService();
 
   const sortOptions = [
     { value: 'popularity', label: 'Popularidad' },
@@ -41,40 +39,40 @@ const ProductList = () => {
     { value: 'atoz', label: 'De la A a la Z' },
   ];
 
-  const filterProductsByCategory = useCallback((category) => {
-    setSelectedCategory(category);
-    setFilteredProducts(products.filter(product => !category || product.category === category));
-  }, [products]);
+  // Fetch products and categories with error handling
+  const fetchProducts = useCallback(async () => {
+    try {
+      const fetchedProducts = await getProducts();
+      setProducts(fetchedProducts);
+      setFilteredProducts(fetchedProducts);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const fetchedProducts = await ProductService.getProducts();
-        setProducts(fetchedProducts);
-        setFilteredProducts(fetchedProducts);
-
-        const categories = await ProductService.getProductCategories();
-        setProductCategories(categories);
-      } catch (error) {
-        console.error("Error fetching products or categories:", error);
-        setConfirmationMessage('Hubo un problema al cargar los productos o categorías.');
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const category = queryParams.get('category');
-    if (category) {
-      filterProductsByCategory(category);
+      const categories = await getProductCategories();
+      setProductCategories(categories);
+    } catch (error) {
+      console.error('Error fetching products or categories:', error);
+      setConfirmationMessage('Hubo un problema al cargar los productos o categorías.');
     }
-  }, [location, filterProductsByCategory]);
+  }, [getProducts, getProductCategories]);
 
-  const sortProducts = () => {
-    const sortedProducts = [...filteredProducts].sort((a, b) => {
-      switch (selectedSortOrder) {
+  // Apply selected filters to the product list
+  const applyFilters = useCallback(() => {
+    const { category, sortOrder, size, flavor } = selectedFilters;
+    let updatedProducts = [...products];
+
+    if (category) {
+      updatedProducts = updatedProducts.filter((product) => product.category === category);
+    }
+
+    if (size) {
+      updatedProducts = updatedProducts.filter((product) => product.sizes?.includes(size));
+    }
+
+    if (flavor) {
+      updatedProducts = updatedProducts.filter((product) => product.flavors?.includes(flavor));
+    }
+
+    updatedProducts.sort((a, b) => {
+      switch (sortOrder) {
         case 'popularity':
           return (b.popularity || 0) - (a.popularity || 0);
         case 'averageRating':
@@ -91,26 +89,51 @@ const ProductList = () => {
           return 0;
       }
     });
-    setFilteredProducts(sortedProducts);
-  };
+
+    setFilteredProducts(updatedProducts);
+  }, [products, selectedFilters]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const category = queryParams.get('category');
+    if (category) {
+      setSelectedFilters((prev) => ({ ...prev, category }));
+    }
+  }, [location]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleAddProduct = (product) => {
-    if ((product.flavors?.length > 0 && !selectedFlavor) || (product.sizes?.length > 0 && !selectedSize)) {
-      setConfirmationMessage('Selecciona un tamaño o sabor');
+    const { flavor, size } = selectedFilters;
+
+    // Verificar si los filtros coinciden con las opciones disponibles del producto
+    if ((product.flavors?.length > 0 && !flavor) || (product.sizes?.length > 0 && !size)) {
+      setConfirmationMessage('Selecciona un tamaño o sabor.');
       return;
     }
-<<<<<<< HEAD
-    cartService.addProduct({ ...product, flavor: selectedFlavor, size: selectedSize });
-=======
-    addProduct({ ...product, flavor: selectedFlavor, size: selectedSize }); // Asegurar que el tamaño y sabor se guarden
->>>>>>> 0b3effc46d45b006412e8081938d3ea8cd4ad128
-    setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
-  };  
+
+    // Verificar que el sabor y el tamaño estén disponibles antes de agregar al carrito
+    if (product.flavors?.includes(flavor) && product.sizes?.includes(size)) {
+      addProduct({ ...product, flavor, size });
+      setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
+    } else {
+      setConfirmationMessage('El sabor o tamaño seleccionado no está disponible.');
+    }
+  };
 
   const resetFilters = () => {
-    setSelectedSize('');
-    setSelectedFlavor('');
-    setSelectedCategory('');
+    setSelectedFilters({
+      size: '',
+      flavor: '',
+      category: '',
+      sortOrder: 'popularity',
+    });
     setFilteredProducts(products);
   };
 
@@ -118,52 +141,121 @@ const ProductList = () => {
     <div className="product-list container">
       <div className="product-filters">
         <FormControl variant="outlined" className="filter-select">
-          <Select value={selectedSortOrder} onChange={(e) => { setSelectedSortOrder(e.target.value); sortProducts(); }}>
-            {sortOptions.map(option => (
-              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+          <Select
+            value={selectedFilters.sortOrder}
+            onChange={(e) =>
+              setSelectedFilters((prev) => ({
+                ...prev,
+                sortOrder: e.target.value,
+              }))
+            }
+          >
+            {sortOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
         <FormControl variant="outlined" className="filter-select">
-          <Select value={selectedCategory} onChange={(e) => filterProductsByCategory(e.target.value)}>
+          <Select
+            value={selectedFilters.category}
+            onChange={(e) =>
+              setSelectedFilters((prev) => ({
+                ...prev,
+                category: e.target.value,
+              }))
+            }
+          >
             <MenuItem value="">Todas las categorías</MenuItem>
-            {productCategories.map(category => (
-              <MenuItem key={category} value={category}>{category}</MenuItem>
+            {productCategories.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
-        <Button variant="contained" onClick={resetFilters}>Reiniciar Filtros</Button>
+        <Button variant="contained" onClick={resetFilters}>
+          Reiniciar Filtros
+        </Button>
       </div>
 
       <div className="product-grid row">
-        {filteredProducts.map(product => (
-          <div key={product.id} className="col-md-4 col-sm-6 col-lg-3">
-            <Card className="product-card">
-              <CardMedia
-                component="img"
-                height="200"
-                image={product.image || 'default-image.jpg'}
-                alt={product.name}
-              />
-              <CardContent>
-                <Typography variant="h6" component="div" className="product-title">
-                  {product.name}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" className="product-description">
-                  {product.description}
-                </Typography>
-                <Typography variant="h6" className="product-price">
-                  ${product.price.toFixed(2)}
-                </Typography>
-                <Button variant="contained" color="primary" onClick={() => handleAddProduct(product)}>
-                  Añadir al Carrito
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
-      </div>
+        {filteredProducts.length ? (
+          filteredProducts.map((product) => (
+            <div key={product.id} className="col-md-4">
+              <Card>
+                <CardMedia
+                  component="img"
+                  alt={product.name}
+                  image={Array.isArray(product.imageUrls) ? product.imageUrls[0] : product.imageUrls || ''}
+                  title={product.name}
+                />
+                <CardContent>
+                  <Typography variant="h6">{product.name}</Typography>
+                  <Typography variant="body2">{product.description}</Typography>
+                  <Typography variant="body1">${product.price}</Typography>
 
+                  {/* Mostrar sabores solo si están disponibles */}
+                  <FormControl variant="outlined" className="filter-select">
+                    {Array.isArray(product.flavors) && product.flavors.length > 0 && (
+                      <Select
+                        value={selectedFilters.flavor || ''}
+                        onChange={(e) => {
+                          const selectedFlavor = e.target.value;
+                          // Validar que el sabor seleccionado esté disponible
+                          if (product.flavors.includes(selectedFlavor)) {
+                            setSelectedFilters((prev) => ({
+                              ...prev,
+                              flavor: selectedFlavor,
+                            }));
+                          } else {
+                            setSelectedFilters((prev) => ({
+                              ...prev,
+                              flavor: '',
+                            }));
+                          }
+                        }}
+                      >
+                        {product.flavors.map((flavor) => (
+                          <MenuItem key={flavor} value={flavor}>
+                            {flavor}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  </FormControl>
+
+                  {/* Mostrar tamaños solo si están disponibles */}
+                  <FormControl variant="outlined" className="filter-select">
+                    {Array.isArray(product.sizes) && product.sizes.length > 0 && (
+                      <Select
+                        value={selectedFilters.size || ''}
+                        onChange={(e) =>
+                          setSelectedFilters((prev) => ({
+                            ...prev,
+                            size: e.target.value,
+                          }))
+                        }
+                      >
+                        {product.sizes.map((size) => (
+                          <MenuItem key={size} value={size}>
+                            {size}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  </FormControl>
+
+                  <Button onClick={() => handleAddProduct(product)}>Agregar al carrito</Button>
+                </CardContent>
+              </Card>
+            </div>
+          ))
+        ) : (
+          <Typography variant="h6">No se encontraron productos</Typography>
+        )}
+      </div>
       {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
     </div>
   );

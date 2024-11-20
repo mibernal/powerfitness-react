@@ -94,4 +94,4 @@ const BrandService = () => {
   };
 };
 
-export { BrandService };
+export default BrandService;

@@ -1,47 +1,60 @@
-// src/app/components/services/cart/CartService.tsx
-//import { useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Product } from '../../../models/product.model';
 
 interface CartProduct extends Product {
   quantity: number;
+  flavor?: string;
+  size?: string;
 }
 
-export default class CartService {
-  private cart: CartProduct[] = [];
+interface CartContextType {
+  products: CartProduct[];
+  addProduct: (product: Product, flavor?: string, size?: string) => void;
+  removeProduct: (productId: string, flavor?: string, size?: string) => void;
+  getTotal: () => number;
+  clearCart: () => void;
+}
 
-  constructor() {
-    this.cart = [];  // Inicializa el carrito vacío
-  }
+const CartServiceContext = createContext<CartContextType | undefined>(undefined);
 
-  // Método para agregar productos al carrito
-  addProduct(product: Product) {
-    const existingProduct = this.cart.find((p) => p.id === product.id);
+export const CartServiceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [cart, setCart] = useState<CartProduct[]>([]);
+
+  // Optimización de la función addProduct
+  const addProduct = (product: Product, flavor?: string, size?: string) => {
+    const existingProduct = cart.find((p) => p.id === product.id && p.flavor === flavor && p.size === size);
     if (existingProduct) {
-      // Actualizamos la cantidad en lugar de crear un nuevo producto
-      this.cart = this.cart.map(p => p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p);
+      setCart(cart.map((p) => p.id === product.id && p.flavor === flavor && p.size === size
+        ? { ...p, quantity: p.quantity + 1 }
+        : p));
     } else {
-      // Agregamos un nuevo producto con cantidad inicial de 1
-      this.cart = [...this.cart, { ...product, quantity: 1 }];
+      setCart((prevCart) => [...prevCart, { ...product, quantity: 1, flavor, size }]);
     }
-  }
+  };
 
-  // Método para eliminar un producto del carrito
-  removeProduct(productId: string) {
-    this.cart = this.cart.filter((p) => p.id !== productId);
-  }
+  const removeProduct = (productId: string, flavor?: string, size?: string) => {
+    setCart((prevCart) => prevCart.filter((p) => p.id !== productId || p.flavor !== flavor || p.size !== size));
+  };
 
-  // Método para vaciar el carrito
-  clearCart() {
-    this.cart = [];
-  }
+  const getTotal = () => {
+    return cart.reduce((acc, product) => acc + (product.price || 0) * product.quantity, 0);
+  };
 
-  // Método para obtener los productos del carrito
-  getProducts() {
-    return this.cart;
-  }
+  const clearCart = () => {
+    setCart([]);
+  };
 
-  // Método para obtener el total de la compra
-  getTotal() {
-    return this.cart.reduce((acc, product) => acc + (product.price || 0) * product.quantity, 0);
+  return (
+    <CartServiceContext.Provider value={{ products: cart, addProduct, removeProduct, getTotal, clearCart }}>
+      {children}
+    </CartServiceContext.Provider>
+  );
+};
+
+export const useCartService = (): CartContextType => {
+  const context = useContext(CartServiceContext);
+  if (!context) {
+    throw new Error('useCartService must be used within a CartServiceProvider');
   }
-}
+  return context;
+};

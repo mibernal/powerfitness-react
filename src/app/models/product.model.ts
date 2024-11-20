@@ -1,4 +1,4 @@
-// src/app/components/services/search/SearchService.tsx
+//src\app\models\product.model.ts:
 
 export interface Product {
   id: string;                // Identificador único del producto

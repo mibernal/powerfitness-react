@@ -1,9 +1,9 @@
-// src/app/components/checkout/Checkout.tsx
+// Checkout.tsx
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../../models/product.model';
-import CartService from '../services/cart/CartService';
+import { useCartService } from '../services/cart/CartService'; // Usar el contexto del carrito
 import { useLocation } from '../services/location/LocationService';
 import { useOrder } from '../services/order/OrderService';
 
@@ -30,42 +30,35 @@ type FormData = {
     nombre: string;
     precio: number;
     cantidad: number;
-    size: string[];   // Cambiado para aceptar un array de strings
-    flavor: string[]; // Cambiado para aceptar un array de strings
+    size: string[];
+    flavor: string[];
   }>;
 };
 
 const Checkout: React.FC = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormData>();
   const navigate = useNavigate();
-  const cartService = new CartService();  // Instanciamos CartService correctamente
-  const { getProducts, getTotal, removeProduct } = cartService;
+  const { products, removeProduct, getTotal } = useCartService(); // Obtener productos y métodos del contexto
   const { departments, getCitiesByDepartment } = useLocation();
   const { createOrder } = useOrder();
-  const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [cities, setCities] = useState<string[]>([]);
   const [simularPago, setSimularPago] = useState(false);
 
   useEffect(() => {
-    const productsList = getProducts();
-    const totalAmount = getTotal();
-    setProducts(productsList);
-    setTotal(totalAmount);
-  }, [getProducts, getTotal]);  // Se actualiza cuando los productos del carrito cambian
+    setTotal(getTotal()); // Actualizar el total del carrito
+  }, [products, getTotal]);
 
   useEffect(() => {
     const departamento = watch("departamento");
     if (departamento) {
-      // Llama a la función que ya no retorna un valor
       getCitiesByDepartment(departamento);
     } else {
-      setCities([]); // Limpia las ciudades si no hay departamento seleccionado
+      setCities([]);
     }
   }, [watch("departamento"), getCitiesByDepartment]);
-  
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    // Aquí los productos se toman directamente del carrito
     data.productos = products.map(product => ({
       brand: product.brand || '',
       category: product.category || '',
@@ -75,8 +68,8 @@ const Checkout: React.FC = () => {
       nombre: product.name,
       precio: product.price,
       cantidad: product.quantity,
-      size: product.sizes, // Se deja el array de 'sizes' como está
-      flavor: product.flavors, // Se deja el array de 'flavors' como está
+      size: product.sizes,
+      flavor: product.flavors,
     }));
 
     try {
@@ -97,10 +90,7 @@ const Checkout: React.FC = () => {
   };
 
   const handleRemoveProduct = (productId: string) => {
-    removeProduct(productId);
-    const updatedProducts = getProducts();
-    setProducts(updatedProducts);
-    setTotal(getTotal());
+    removeProduct(productId); // Usar el método del contexto para eliminar el producto
   };
 
   return (

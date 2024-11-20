@@ -1,20 +1,22 @@
 // src/app/components/navbar/Navbar.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import CartService from '../services/cart/CartService';
-import productService from '../services/product/ProductService';
+import { useCartService } from '../services/cart/CartService';  // Corregir importación
+import { ProductService } from '../services/product/ProductService'; // Asegúrate de que esté correctamente importado
 import { useAuth } from '../services/auth/AuthService';
 
-const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cartItemCount, setCartItemCount] = useState(0);
-  const [productCategories, setProductCategories] = useState([]);
+const Navbar: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState<string>(''); // Tipado explícito de búsqueda
+  const [cartItemCount, setCartItemCount] = useState<number>(0); // Tipado explícito de cuenta de carrito
+  const [productCategories, setProductCategories] = useState<string[]>([]); // Tipado explícito de categorías
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { products } = useCartService(); // Accede a los productos del carrito
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        const productService = ProductService();  // Crear instancia de ProductService
         const categories = await productService.getProductCategories();
         setProductCategories(categories);
       } catch (error) {
@@ -24,20 +26,16 @@ const Navbar = () => {
 
     fetchCategories();
 
-    const cartService = new CartService();
-    const subscription = cartService.addToCart$?.subscribe(() => {
-      setCartItemCount((prevCount) => prevCount + 1);
-    });
+    // Actualiza el contador de productos en el carrito
+    setCartItemCount(products.reduce((total, product) => total + product.quantity, 0));
+  }, [products]); // Este efecto se ejecutará cada vez que los productos del carrito cambien
 
-    return () => subscription?.unsubscribe();
-  }, []);
-
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) navigate(`/search?query=${searchQuery}`);
   };
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = (category: string) => {
     navigate(`/product-list?category=${category}`);
   };
 
@@ -45,15 +43,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">PowerFitness</Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNavDropdown"
-          aria-controls="navbarNavDropdown"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNavDropdown">

@@ -3,28 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import CartService from '../services/cart/CartService';
-
-// Instancia de CartService
-const cartService = new CartService();
+import { useCartService } from '../services/cart/CartService'; // Utilizamos el hook de contexto
 
 const Cart = () => {  
   const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+  const { products: cartProducts, removeProduct, getTotal } = useCartService(); // Usamos el hook `useCartService`
 
+  // Actualiza el estado con los productos del carrito cuando se monta el componente
   useEffect(() => {
-    // Obtiene los productos del carrito al montar el componente
-    setProducts(cartService.getProducts());
-  }, []);
-
-  const getTotal = () => 
-    products.reduce((acc, product) => acc + (product.price || 0) * (product.quantity || 1), 0);
+    setProducts(cartProducts);
+  }, [cartProducts]); // Dependencia de cartProducts para actualizar el estado correctamente
 
   const handleRemoveProduct = (productId) => {
-    // Elimina el producto usando su ID y actualiza el estado
-    cartService.removeProduct(productId);
-    setProducts(cartService.getProducts());
+    removeProduct(productId);  // Llamamos a la función de eliminación del contexto
     enqueueSnackbar('Producto eliminado del carrito.', { variant: 'info', autoHideDuration: 3000 });
   };
 

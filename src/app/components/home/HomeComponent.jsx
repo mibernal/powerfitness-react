@@ -1,9 +1,9 @@
-// src/app/components/HomeComponent.jsx
+// src/app/components/home/HomeComponent.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
-import ProductService from '../services/product/ProductService';  // Asegúrate de que esta importación sea correcta
-import { BrandService } from '../services/brand/BrandService'; // Suponiendo que 'BrandService' sea un hook
+import { ProductService } from '../services/product/ProductService';  // Corregir la importación
+import  BrandService  from '../services/brand/BrandService';  // Asegúrate de que sea el hook adecuado
 import './HomeComponent.scss';
 
 const HomeComponent = () => {
@@ -22,37 +22,37 @@ const HomeComponent = () => {
     infinite: true,
   };
 
-  const { fetchBrands, brandsData } = BrandService(); // Llamar al hook que maneja las marcas
+  const { fetchBrands, brandsData } = BrandService(); // Asegúrate de que fetchBrands y brandsData sean correctos
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productService = new ProductService();  // Instancia ProductService
-        const products = await productService.getProducts();  // Llama a getProducts usando la instancia
-        setProducts(products.slice(0, 6));
+        const productService = new ProductService(); // Asegurarte que ProductService se usa correctamente
+        const fetchedProducts = await productService.getProducts();
+        setProducts(fetchedProducts.slice(0, 6)); // Mostrar solo los primeros 6 productos
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching products:', error); // Manejo de errores
       }
     };
 
-    fetchProducts();
-    fetchBrands();  // Llamar a la función de 'fetchBrands' para obtener las marcas
-  }, [fetchBrands]);  // Dependencia para llamar solo cuando el hook se recargue
+    fetchProducts();  // Llamar para obtener los productos
+    if (fetchBrands) {
+      fetchBrands();  // Llamar para obtener las marcas
+    }
+  }, [fetchBrands]); // Este efecto se dispara cuando fetchBrands cambia
 
   useEffect(() => {
     if (brandsData) {
-      setBrands(brandsData); // Asignar las marcas cuando estén disponibles
+      setBrands(brandsData);  // Si las marcas están disponibles, las guardamos en el estado
     }
   }, [brandsData]);
 
   const viewProductDetails = (productId) => {
-    navigate(`/products/${productId}`);
+    navigate(`/products/${productId}`); // Redirigir al detalle del producto
   };
 
-  // **Fix 1: Missing formatPrice function**
-  // Implementación de la función para formatear los precios
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`; // Formatea el precio con el símbolo de la moneda y 2 decimales
+    return `$${price.toFixed(2)}`;  // Formatear el precio correctamente
   };
 
   return (
@@ -64,7 +64,7 @@ const HomeComponent = () => {
             <Slider {...carouselConfig} ref={slickRef}>
               {brands.map((brand) => (
                 <div key={brand.id} className="carousel-item">
-                  <img src={brand.image[0]} alt={brand.brand} className="brand-logo" />
+                  <img src={brand.image[0]} alt={brand.name} className="brand-logo" />
                 </div>
               ))}
             </Slider>
@@ -85,8 +85,7 @@ const HomeComponent = () => {
                         </button>
                       </div>
                       <small className="text-muted">
-                        {/* Fix 2: Use the formatPrice function */}
-                        {formatPrice(product.price)}
+                        {formatPrice(product.price)}  {/* Formatear el precio */}
                       </small>
                     </div>
                   </div>

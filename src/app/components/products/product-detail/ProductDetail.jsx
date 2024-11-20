@@ -1,8 +1,7 @@
-// src/app/components/products/product-detail/ProductDetail.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ProductService from '../../services/product/ProductService';
-import CartService from '../../services/cart/CartService';
+import { ProductService } from '../../services/product/ProductService';
+import { useCartService } from '../../services/cart/CartService';  // Corregir importación
 import './ProductDetail.scss';
 
 const ProductDetail = () => {
@@ -13,6 +12,8 @@ const ProductDetail = () => {
   const [selectedFlavor, setSelectedFlavor] = useState('');
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const { addProduct } = useCartService(); // Usamos el hook para acceder a la función de agregar productos al carrito
 
   const updateCurrentImageIndex = (index) => {
     setCurrentImageIndex(index);
@@ -42,7 +43,7 @@ const ProductDetail = () => {
     return new ProductService().formatPrice(price); // Usamos el método formatPrice del servicio
   };
 
-  const addProduct = () => {
+  const handleAddProduct = () => {
     if ((!selectedFlavor && product.flavors && product.flavors.length > 0) || 
         (!selectedSize && product.sizes && product.sizes.length > 0)) {
       setConfirmationMessage('');
@@ -50,7 +51,7 @@ const ProductDetail = () => {
     }
 
     const selectedProduct = { ...product, selectedSize, selectedFlavor };
-    CartService.addProduct(selectedProduct);
+    addProduct(selectedProduct);  // Llamamos al método del hook para agregar al carrito
     setConfirmationMessage(`Producto agregado al carrito: ${product.name}`);
     setSelectedSize('');
     setSelectedFlavor('');
@@ -103,7 +104,7 @@ const ProductDetail = () => {
                   <p className="card-text product-stock">Stock: {product.stock}</p>
                 )}
                 <p className="card-text product-price">Precio: {formatPrice(product.price)}</p>
-                <button className="btn btn-primary" onClick={addProduct}>Agregar al carrito</button>
+                <button className="btn btn-primary" onClick={handleAddProduct}>Agregar al carrito</button>
                 {confirmationMessage && <p className="confirmation-message">{confirmationMessage}</p>}
               </div>
             </div>
